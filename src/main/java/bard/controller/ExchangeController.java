@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -21,7 +20,19 @@ public class ExchangeController {
     private ExchangeService exchangeService;
 
     @GetMapping("/exchange")
-    public ResponseEntity<ApiResponse<ExchangeRate>> exchange(@RequestBody @Valid ExchangeRequest request) {     //todo mb изменить имя метода
+    public ResponseEntity<ApiResponse<ExchangeRate>> convertCurrency(
+            @RequestBody @Valid ExchangeRequest request) {
 
+        ExchangeRate result = exchangeService.exchange(
+                request.getBaseCurrencyCode(),
+                request.getTargetCurrencyCode(),
+                request.getAmount()
+        );
+
+        ApiResponse<ExchangeRate> response = ApiResponse.success(
+                "Currency converted successfully", result
+        );
+        return ResponseEntity.ok(response);
     }
 }
+

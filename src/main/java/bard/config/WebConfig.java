@@ -19,7 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.sqlite.JDBC");
-        dataSource.setUrl("jdbc:sqlite:identifier.sqlite");
+        dataSource.setUrl("jdbc:sqlite:/home/bard/IdeaProjects/currencyExchanger/identifier.sqlite");
         return dataSource;
     }
 

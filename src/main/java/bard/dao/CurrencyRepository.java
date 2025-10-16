@@ -1,8 +1,8 @@
 package bard.dao;
 
+import bard.exception.DatabaseException;
 import bard.exception.ExchangeAlreadyExistsException;
 import bard.exception.ExchangeNotFoundException;
-import bard.exception.DatabaseException;
 import bard.model.Currency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -17,14 +17,6 @@ import java.util.List;
 public class CurrencyRepository implements CurrencyImpl {
 
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public CurrencyRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        System.out.print("gooida");
-
-    }
-
     private final RowMapper<Currency> currencyRowMapper = (rs, rowNum) -> {
         Currency currency = new Currency(
                 rs.getString("Code"),
@@ -34,6 +26,13 @@ public class CurrencyRepository implements CurrencyImpl {
         currency.setId(rs.getLong("ID"));
         return currency;
     };
+
+    @Autowired
+    public CurrencyRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+        System.out.print("gooida");
+
+    }
 
     @Override
     public List<Currency> getCurrencies() {

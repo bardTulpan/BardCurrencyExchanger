@@ -57,7 +57,7 @@ public class ExchangeRateController {
     @PostMapping("/exchangeRates")
     public ResponseEntity<ApiResponse<ExchangeRate>> insertExchangeRate(@RequestBody @Valid ExchangeRateRequest exchangeRateRequest) {
 
-        ExchangeRate createdRate = exchangeRateService.postExchangeRate(exchangeRateRequest);
+        ExchangeRate createdRate = exchangeRateService.createExchangeRate(exchangeRateRequest);
 
 
         ApiResponse<ExchangeRate> response = ApiResponse.success(

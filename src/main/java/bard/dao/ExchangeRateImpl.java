@@ -13,5 +13,7 @@ public interface ExchangeRateImpl {
     ExchangeRate postExchangeRate(ExchangeRate exchangeRate);
 
     ExchangeRate updateExchangeRate(String baseCode, String targetCode, BigDecimal newRate);
+
+    boolean isExistsExchangeRate(String baseCurrencyCode, String targetCurrencyCode);
 }
 

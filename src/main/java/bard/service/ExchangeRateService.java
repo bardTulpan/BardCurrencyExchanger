@@ -34,7 +34,7 @@ public class ExchangeRateService {
         return exchangeRateRepository.getExchangeRateByCodes(baseCode, targetCode);
     }
 
-    public ExchangeRate postExchangeRate(ExchangeRateRequest request) {
+    public ExchangeRate createExchangeRate(ExchangeRateRequest request) { //нужно ли валидирывать данные, которые приходят как-то подругому?
 
         Currency baseCurrency = currencyRepository.getCurrencyByCode(request.getBaseCurrencyCode());
         Currency targetCurrency = currencyRepository.getCurrencyByCode(request.getTargetCurrencyCode());
@@ -50,4 +50,9 @@ public class ExchangeRateService {
 
         return exchangeRateRepository.updateExchangeRate(baseCode, targetCode, newRate);
     }
+
+    public boolean isExistsExchangeRate(String baseCurrencyCode, String targetCurrencyCode) {
+        return exchangeRateRepository.isExistsExchangeRate(baseCurrencyCode, targetCurrencyCode);
+    }
+
 }

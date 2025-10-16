@@ -4,14 +4,11 @@ package bard.controller;
 import bard.model.ApiResponse;
 import bard.model.Currency;
 import bard.service.CurrencyService;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 //мб сделать объект serverResponce и возвращать её
@@ -37,7 +34,7 @@ public class CurrencyController {
     @GetMapping("/currency/{code}")
     public ResponseEntity<ApiResponse<Currency>> getCurrency(@PathVariable String code) {
 
-        Currency foundCurrency = currencyService.getCurrency(code);
+        Currency foundCurrency = currencyService.getCurrencyByCode(code);
 
         ApiResponse<Currency> response = ApiResponse.success(
                 "Currency retrieved successfully",
@@ -59,7 +56,7 @@ public class CurrencyController {
     //сделать намана
     @PostMapping("/currencies")
     public ResponseEntity<ApiResponse<Void>> insertCurrency(@RequestBody @Valid Currency currency) {
-        currencyService.postCurrency(currency);
+        currencyService.createCurrency(currency);
 
         ApiResponse<Void> response = ApiResponse.success(
                 "Currency created successfully",

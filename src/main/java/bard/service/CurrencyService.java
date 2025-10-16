@@ -17,16 +17,16 @@ public class CurrencyService {
         return currencyRepository.getCurrencies();
     }
 
-    public Currency getCurrency(String code) {
+    public Currency getCurrencyByCode(String code) {
 
-        if (code == null || code.length() == 6) {
-            throw new IllegalArgumentException("code:" + code);
+        if (code == null || code.length() == 3) {
+            throw new IllegalArgumentException("Currency code must be exactly 3 characters" + code);
         }
 
         return currencyRepository.getCurrencyByCode(code);
     }
 
-    public void postCurrency(Currency currency) {
+    public void createCurrency(Currency currency) {
         currencyRepository.postCurrency(currency);
     }
 

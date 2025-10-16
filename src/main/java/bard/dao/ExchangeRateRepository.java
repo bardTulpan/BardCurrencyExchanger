@@ -23,9 +23,6 @@ import java.util.List;
 @Repository
 public class ExchangeRateRepository implements ExchangeRateImpl {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
     private final RowMapper<ExchangeRate> exchangeRateRowMapper = (rs, rowNum) -> {
         ExchangeRate exchangeRate = new ExchangeRate();
         exchangeRate.setId(rs.getLong("er_id"));
@@ -49,6 +46,8 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
 
         return exchangeRate;
     };
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public List<ExchangeRate> getExchangeRates() {
@@ -91,47 +90,6 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
         }
     }
 
-//    @Override
-//    public ExchangeRate postExchangeRate(ExchangeRate exchangeRate) {
-//        try {
-//            // Валидация
-//            if (exchangeRate.getBaseCurrency().getCode().equals(exchangeRate.getTargetCurrency().getCode())) {
-//                throw new SameCurrencyException(exchangeRate.getBaseCurrency().getCode());
-//            }
-//
-//            if (exchangeRate.getRate().compareTo(java.math.BigDecimal.ZERO) <= 0) {
-//                throw new InvalidExchangeRateException(String.valueOf(exchangeRate.getRate()));
-//            }
-//
-//            // Проверка на существование
-//            String checkSql = """
-//                    SELECT COUNT(*) FROM ExchangeRates er
-//                    JOIN Currencies bc ON er.BaseCurrencyId = bc.ID
-//                    JOIN Currencies tc ON er.TargetCurrencyId = tc.ID
-//                    WHERE bc.Code = ? AND tc.Code = ?
-//                    """;
-//            Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class,
-//                    exchangeRate.getBaseCurrency().getCode(),
-//                    exchangeRate.getTargetCurrency().getCode());
-//
-//            if (count != null && count > 0) {
-//                throw new ExchangeRateAlreadyExistsException(
-//                        exchangeRate.getBaseCurrency().getCode(),
-//                        exchangeRate.getTargetCurrency().getCode()
-//                );
-//            }
-//
-//            String sql = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?)";
-//            jdbcTemplate.update(sql,
-//                    exchangeRate.getBaseCurrency().getId(),
-//                    exchangeRate.getTargetCurrency().getId(),
-//                    exchangeRate.getRate()
-//            );
-//
-//        } catch (DataAccessException e) {
-//            throw new DatabaseException("Failed to insert exchange rate: " + e.getMessage());
-//        }
-//    }
     public ExchangeRate postExchangeRate(ExchangeRate exchangeRate) {
         try {
             // Валидация
@@ -187,11 +145,11 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
     public ExchangeRate updateExchangeRate(String baseCode, String targetCode, BigDecimal newRate) {
         try {
             String sql = """
-                UPDATE ExchangeRates 
-                SET Rate = ? 
-                WHERE BaseCurrencyId = (SELECT ID FROM Currencies WHERE Code = ?)
-                AND TargetCurrencyId = (SELECT ID FROM Currencies WHERE Code = ?)
-                """;
+                    UPDATE ExchangeRates 
+                    SET Rate = ? 
+                    WHERE BaseCurrencyId = (SELECT ID FROM Currencies WHERE Code = ?)
+                    AND TargetCurrencyId = (SELECT ID FROM Currencies WHERE Code = ?)
+                    """;
 
             int affected = jdbcTemplate.update(sql, newRate, baseCode, targetCode);
 
@@ -206,5 +164,32 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
             throw new DatabaseException("Failed to update exchange rate: " + e.getMessage());
         }
     }
+
+    @Override
+    public boolean isExistsExchangeRate(String baseCurrencyCode, String targetCurrencyCode) {
+        try {
+            String checkSql = """
+                    SELECT COUNT(*) FROM ExchangeRates er
+                    JOIN Currencies bc ON er.BaseCurrencyId = bc.ID
+                    JOIN Currencies tc ON er.TargetCurrencyId = tc.ID
+                    WHERE bc.Code = ? AND tc.Code = ?
+                    """;
+            Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class,
+                    baseCurrencyCode,
+                    targetCurrencyCode);
+
+            return (count != null && count > 0);
+        } catch (DataAccessException e) {
+            System.err.println("Error checking exchange rate existence: " + e.getMessage());
+            return false;
+        }
+    }
 }
 
+
+//{
+//        "baseCurrencyCode" : "RUB",
+//        "targetCurrencyCode" : "EUR",
+//        "rate" : "1"
+//
+//        }

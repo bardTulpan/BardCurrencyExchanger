@@ -62,7 +62,6 @@
 package bard.exception;
 
 import bard.model.ApiResponse;
-import com.sun.jdi.request.InvalidRequestStateException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
