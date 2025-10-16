@@ -5,34 +5,29 @@ import bard.model.ExchangeRate;
 import bard.model.ExchangeRequest;
 import bard.service.ExchangeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api") //todo тут переписать в modelattribyte и другие модели возвращать responce и можно запушить
 public class ExchangeController {
     @Autowired
     private ExchangeService exchangeService;
 
-    @GetMapping("/exchange")
-    public ResponseEntity<ApiResponse<ExchangeRate>> convertCurrency(
-            @RequestBody @Valid ExchangeRequest request) {
+    @GetMapping(value = "/exchange", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ExchangeRate> convertCurrency(
+            @ModelAttribute @Valid ExchangeRequest request) {
 
         ExchangeRate result = exchangeService.exchange(
                 request.getBaseCurrencyCode(),
                 request.getTargetCurrencyCode(),
                 request.getAmount()
         );
-
-        ApiResponse<ExchangeRate> response = ApiResponse.success(
-                "Currency converted successfully", result
-        );
-        return ResponseEntity.ok(response);
+        return ApiResponse.success("Currency converted successfully", result);
     }
 }
 

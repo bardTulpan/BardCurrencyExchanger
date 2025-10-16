@@ -19,7 +19,7 @@ public class CurrencyService {
 
     public Currency getCurrencyByCode(String code) {
 
-        if (code == null || code.length() == 3) {
+        if (code == null || code.length() != 3) {
             throw new IllegalArgumentException("Currency code must be exactly 3 characters" + code);
         }
 

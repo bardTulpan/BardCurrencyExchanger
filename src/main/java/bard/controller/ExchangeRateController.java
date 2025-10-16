@@ -7,6 +7,8 @@ import bard.model.ExchangeRateUpdateRequest;
 import bard.service.ExchangeRateService;
 import com.sun.jdi.request.InvalidRequestStateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,30 +23,22 @@ public class ExchangeRateController {
     private ExchangeRateService exchangeRateService;
 
     @GetMapping("/exchangeRates")
-    public ResponseEntity<ApiResponse<List<ExchangeRate>>> getExchangeRates() {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<ExchangeRate>> getExchangeRates() {
         List<ExchangeRate> exchangeRates = exchangeRateService.getExchangeRates();
 
-        ApiResponse<List<ExchangeRate>> response = ApiResponse.success(
-                "Exchange rates retrieved successfully",
-                exchangeRates
-        );
-
-        return ResponseEntity.ok(response);
+        return ApiResponse.success("Exchange rates retrieved successfully", exchangeRates);
     }
 
     @GetMapping("/exchangeRate/{currencyPair}")
-    public ResponseEntity<ApiResponse<ExchangeRate>> getExchangeRateByCode(@PathVariable String currencyPair) {
+    public ApiResponse<ExchangeRate> getExchangeRateByCode(@PathVariable String currencyPair) {
         ExchangeRate exchangeRate = exchangeRateService.getExchangeRateByCode(currencyPair);
 
-        ApiResponse<ExchangeRate> response = ApiResponse.success(
-                "Exchange rate retrieved successfully",
-                exchangeRate
-        );
+        return ApiResponse.success("Exchange rate retrieved successfully", exchangeRate);
 
-        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/exchangeRate")
+    @GetMapping("/exchangeRate") //понял что такое себе, но как переделать. что-то с ControllerAdvice. нада разобраться
     public ResponseEntity<ApiResponse<?>> getCurrencyWithoutCode() {
         ApiResponse<?> response = ApiResponse.error(
                 "ExchangeRate currencyPair is required in URL path",
@@ -54,22 +48,17 @@ public class ExchangeRateController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    @PostMapping("/exchangeRates")
-    public ResponseEntity<ApiResponse<ExchangeRate>> insertExchangeRate(@RequestBody @Valid ExchangeRateRequest exchangeRateRequest) {
+    @PostMapping(value = "/exchangeRates", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<Void> insertExchangeRate(@ModelAttribute @Valid ExchangeRateRequest exchangeRateRequest) {
 
         ExchangeRate createdRate = exchangeRateService.createExchangeRate(exchangeRateRequest);
-
-
-        ApiResponse<ExchangeRate> response = ApiResponse.success(
-                "Exchange rate created successfully",
-                createdRate
-        );
-
-        return ResponseEntity.status(201).body(response);
+        return ApiResponse.success("ExchangeRate created", null);
     }
 
-    @PatchMapping("/exchangeRate/{currencyPair}")
-    public ResponseEntity<ApiResponse<ExchangeRate>> updateExchangeRate(@PathVariable String currencyPair, @RequestBody @Valid ExchangeRateUpdateRequest request) {
+    @PatchMapping(value = "/exchangeRate/{currencyPair}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseStatus(HttpStatus.OK) //мб это
+    public ApiResponse<ExchangeRate> updateExchangeRate(@PathVariable String currencyPair, @ModelAttribute @Valid ExchangeRateUpdateRequest request) {
         if (currencyPair == null || currencyPair.length() != 6) {
             throw new InvalidRequestStateException("Currency pair must be exactly 6 characters");
         }
@@ -78,11 +67,6 @@ public class ExchangeRateController {
         String targetCode = currencyPair.substring(3).toUpperCase();
 
         ExchangeRate updatedRate = exchangeRateService.updateExchangeRate(baseCode, targetCode, request.getRate());
-
-        ApiResponse<ExchangeRate> response = ApiResponse.success(
-                "Exchange rate updated successfully",
-                updatedRate
-        );
-        return ResponseEntity.ok(response);
+        return ApiResponse.success("Exchange rate updated successfully", updatedRate);
     }
 }

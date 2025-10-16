@@ -52,12 +52,10 @@ public class ExchangeService {
         ExchangeRate usdToFrom = exchangeRateService.getExchangeRateByCode("EUR" + fromCurrencyCode);
         ExchangeRate usdToTo = exchangeRateService.getExchangeRateByCode("EUR" + toCurrencyCode);
 
-
         // Вычисляем кросс-курс: A → B = (USD → B) / (USD → A)
         BigDecimal crossRate = usdToTo.getRate().divide(usdToFrom.getRate(), 6, RoundingMode.HALF_UP);
         BigDecimal convertedAmount = amount.multiply(crossRate);
 
-        // Создаем результат
         ExchangeRate result = new ExchangeRate();
         result.setBaseCurrency(usdToFrom.getTargetCurrency()); // Валюта A
         result.setTargetCurrency(usdToTo.getTargetCurrency()); // Валюта B

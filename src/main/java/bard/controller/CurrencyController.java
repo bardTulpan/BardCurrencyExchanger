@@ -5,6 +5,8 @@ import bard.model.ApiResponse;
 import bard.model.Currency;
 import bard.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,50 +22,38 @@ public class CurrencyController {
 
 
     @GetMapping("/currencies")
-    public ResponseEntity<ApiResponse<List<Currency>>> getCurrencies() {
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<Currency>> getCurrencies() {
         List<Currency> currencies = currencyService.getCurrencies();
 
-        ApiResponse<List<Currency>> response = ApiResponse.success(
-                "Currencies retrieved successfully",
-                currencies
-        );
-
-        return ResponseEntity.ok(response);
+        return ApiResponse.success("Currencies retrieved successfully", currencies);
     }
 
     @GetMapping("/currency/{code}")
-    public ResponseEntity<ApiResponse<Currency>> getCurrency(@PathVariable String code) {
-
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<Currency> getCurrency(@PathVariable String code) {
         Currency foundCurrency = currencyService.getCurrencyByCode(code);
 
-        ApiResponse<Currency> response = ApiResponse.success(
-                "Currency retrieved successfully",
-                foundCurrency
-        );
-        return ResponseEntity.ok(response);
+        return ApiResponse.success("Currency retrieved successfully", foundCurrency);
     }
 
-    @GetMapping("/currency")
+    @GetMapping("/currency") //понял, как это переделать
     public ResponseEntity<ApiResponse<?>> getCurrencyWithoutCode() {
         ApiResponse<?> response = ApiResponse.error(
                 "Currency code is required in URL path",
                 "MISSING_CURRENCY_CODE 400"
         );
-
         return ResponseEntity.badRequest().body(response);
     }
 
     //сделать намана
-    @PostMapping("/currencies")
-    public ResponseEntity<ApiResponse<Void>> insertCurrency(@RequestBody @Valid Currency currency) {
+    @PostMapping(value = "/currencies", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<Void> createCurrency(@ModelAttribute @Valid Currency currency) {
         currencyService.createCurrency(currency);
 
-        ApiResponse<Void> response = ApiResponse.success(
-                "Currency created successfully",
-                null
-        );
+        return ApiResponse.success("Currency created", null);
 
-        return ResponseEntity.status(200).body(response);
     }
 
 

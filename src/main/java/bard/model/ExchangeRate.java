@@ -1,5 +1,6 @@
 package bard.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,8 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExchangeRate { //todo сделать ExchangeRateResponse
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ExchangeRate {
     private Long id;
     private Currency baseCurrency;
     private Currency targetCurrency;
