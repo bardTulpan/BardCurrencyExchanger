@@ -3,6 +3,7 @@ package bard.controller;
 
 import bard.model.ApiResponse;
 import bard.model.Currency;
+import bard.model.CurrencyRequest;
 import bard.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,16 +11,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
-//мб сделать объект serverResponce и возвращать её
 @RequestMapping("/api")
 @RestController
 public class CurrencyController {
-    @Autowired
-    private CurrencyService currencyService;
+    private final CurrencyService currencyService;
 
+    @Autowired
+    public CurrencyController(CurrencyService currencyService) {
+        this.currencyService = currencyService;
+    }
 
     @GetMapping("/currencies")
     @ResponseStatus(HttpStatus.OK)
@@ -32,9 +34,9 @@ public class CurrencyController {
     @GetMapping("/currency/{code}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<Currency> getCurrency(@PathVariable String code) {
-        Currency foundCurrency = currencyService.getCurrencyByCode(code);
+        Currency currency = currencyService.getCurrencyByCode(code);
 
-        return ApiResponse.success("Currency retrieved successfully", foundCurrency);
+        return ApiResponse.success("Currency retrieved successfully", currency);
     }
 
     @GetMapping("/currency") //понял, как это переделать
@@ -49,7 +51,7 @@ public class CurrencyController {
     //сделать намана
     @PostMapping(value = "/currencies", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<Void> createCurrency(@ModelAttribute @Valid Currency currency) {
+    public ApiResponse<Void> save(@ModelAttribute Currency currency) {
         currencyService.createCurrency(currency);
 
         return ApiResponse.success("Currency created", null);

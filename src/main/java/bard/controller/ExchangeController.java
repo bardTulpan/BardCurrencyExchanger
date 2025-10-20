@@ -14,13 +14,16 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api") //todo тут переписать в modelattribyte и другие модели возвращать responce и можно запушить
 public class ExchangeController {
+    private final ExchangeService exchangeService;
+
     @Autowired
-    private ExchangeService exchangeService;
+    public ExchangeController(ExchangeService exchangeService) {
+        this.exchangeService = exchangeService;
+    }
 
     @GetMapping(value = "/exchange", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<ExchangeRate> convertCurrency(
-            @ModelAttribute @Valid ExchangeRequest request) {
+    public ApiResponse<ExchangeRate> convertCurrency(@ModelAttribute ExchangeRequest request) {
 
         ExchangeRate result = exchangeService.exchange(
                 request.getBaseCurrencyCode(),

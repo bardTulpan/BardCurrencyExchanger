@@ -1,12 +1,14 @@
 package bard.dao;
 
+import bard.exception.ConflictException;
 import bard.exception.DatabaseException;
-import bard.exception.currency.SameCurrencyException;
 import bard.exception.exchangeRate.ExchangeRateAlreadyExistsException;
 import bard.exception.exchangeRate.ExchangeRateNotFoundException;
 import bard.exception.exchangeRate.InvalidExchangeRateException;
 import bard.model.Currency;
 import bard.model.ExchangeRate;
+import bard.service.CurrencyService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -19,9 +21,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Repository
-public class ExchangeRateRepository implements ExchangeRateImpl {
+public class ExchangeRateRepository {
 
     private final RowMapper<ExchangeRate> exchangeRateRowMapper = (rs, rowNum) -> {
         ExchangeRate exchangeRate = new ExchangeRate();
@@ -49,15 +52,20 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Override
     public List<ExchangeRate> getExchangeRates() {
         try {
             String sql = """
                     SELECT 
                         er.ID as er_id, 
                         er.Rate as er_rate,
-                        bc.ID as bc_id, bc.Code as bc_code, bc.FullName as bc_fullname, bc.Sign as bc_sign,
-                        tc.ID as tc_id, tc.Code as tc_code, tc.FullName as tc_fullname, tc.Sign as tc_sign
+                        bc.ID as bc_id,
+                        bc.Code as bc_code,
+                        bc.FullName as bc_fullname,
+                        bc.Sign as bc_sign,
+                        tc.ID as tc_id,
+                        tc.Code as tc_code, 
+                        tc.FullName as tc_fullname, 
+                        tc.Sign as tc_sign
                     FROM ExchangeRates er
                     JOIN Currencies bc ON er.BaseCurrencyId = bc.ID
                     JOIN Currencies tc ON er.TargetCurrencyId = tc.ID
@@ -68,15 +76,20 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
         }
     }
 
-    @Override
     public ExchangeRate getExchangeRateByCodes(String baseCode, String targetCode) {
         try {
             String sql = """
                     SELECT 
                         er.ID as er_id, 
                         er.Rate as er_rate,
-                        bc.ID as bc_id, bc.Code as bc_code, bc.FullName as bc_fullname, bc.Sign as bc_sign,
-                        tc.ID as tc_id, tc.Code as tc_code, tc.FullName as tc_fullname, tc.Sign as tc_sign
+                        bc.ID as bc_id, 
+                        bc.Code as bc_code, 
+                        bc.FullName as bc_fullname, 
+                        bc.Sign as bc_sign,
+                        tc.ID as tc_id,
+                        tc.Code as tc_code,
+                        tc.FullName as tc_fullname, 
+                        tc.Sign as tc_sign
                     FROM ExchangeRates er
                     JOIN Currencies bc ON er.BaseCurrencyId = bc.ID
                     JOIN Currencies tc ON er.TargetCurrencyId = tc.ID
@@ -94,7 +107,7 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
         try {
             // Валидация
             if (exchangeRate.getBaseCurrency().getCode().equals(exchangeRate.getTargetCurrency().getCode())) {
-                throw new SameCurrencyException(exchangeRate.getBaseCurrency().getCode());
+                throw new ConflictException(exchangeRate.getBaseCurrency().getCode());
             }
 
             if (exchangeRate.getRate().compareTo(java.math.BigDecimal.ZERO) <= 0) {
@@ -165,8 +178,7 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
         }
     }
 
-    @Override
-    public boolean isExistsExchangeRate(String baseCurrencyCode, String targetCurrencyCode) {
+    public boolean isExchangeRateExists(String baseCurrencyCode, String targetCurrencyCode) {
         try {
             String checkSql = """
                     SELECT COUNT(*) FROM ExchangeRates er
@@ -185,11 +197,3 @@ public class ExchangeRateRepository implements ExchangeRateImpl {
         }
     }
 }
-
-
-//{
-//        "baseCurrencyCode" : "RUB",
-//        "targetCurrencyCode" : "EUR",
-//        "rate" : "1"
-//
-//        }

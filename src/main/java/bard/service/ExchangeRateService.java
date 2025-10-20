@@ -14,10 +14,14 @@ import java.util.List;
 
 @Service
 public class ExchangeRateService {
+    public final ExchangeRateRepository exchangeRateRepository;
+    public final CurrencyRepository currencyRepository;
+
     @Autowired
-    public ExchangeRateRepository exchangeRateRepository;
-    @Autowired
-    public CurrencyRepository currencyRepository;
+    public ExchangeRateService(ExchangeRateRepository exchangeRateRepository, CurrencyRepository currencyRepository) {
+        this.exchangeRateRepository = exchangeRateRepository;
+        this.currencyRepository = currencyRepository;
+    }
 
     public List<ExchangeRate> getExchangeRates() {
         return exchangeRateRepository.getExchangeRates();
@@ -52,7 +56,7 @@ public class ExchangeRateService {
     }
 
     public boolean isExistsExchangeRate(String baseCurrencyCode, String targetCurrencyCode) {
-        return exchangeRateRepository.isExistsExchangeRate(baseCurrencyCode, targetCurrencyCode);
+        return exchangeRateRepository.isExchangeRateExists(baseCurrencyCode, targetCurrencyCode);
     }
 
 }

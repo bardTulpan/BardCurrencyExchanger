@@ -19,8 +19,12 @@ import java.util.List;
 @RequestMapping("/api")
 public class ExchangeRateController {
 
+    private final ExchangeRateService exchangeRateService;
+
     @Autowired
-    private ExchangeRateService exchangeRateService;
+    public ExchangeRateController(ExchangeRateService exchangeRateService) {
+        this.exchangeRateService = exchangeRateService;
+    }
 
     @GetMapping("/exchangeRates")
     @ResponseStatus(HttpStatus.OK)
@@ -50,7 +54,7 @@ public class ExchangeRateController {
 
     @PostMapping(value = "/exchangeRates", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<Void> insertExchangeRate(@ModelAttribute @Valid ExchangeRateRequest exchangeRateRequest) {
+    public ApiResponse<Void> insertExchangeRate(@ModelAttribute ExchangeRateRequest exchangeRateRequest) {
 
         ExchangeRate createdRate = exchangeRateService.createExchangeRate(exchangeRateRequest);
         return ApiResponse.success("ExchangeRate created", null);
@@ -58,11 +62,7 @@ public class ExchangeRateController {
 
     @PatchMapping(value = "/exchangeRate/{currencyPair}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK) //мб это
-    public ApiResponse<ExchangeRate> updateExchangeRate(@PathVariable String currencyPair, @ModelAttribute @Valid ExchangeRateUpdateRequest request) {
-        if (currencyPair == null || currencyPair.length() != 6) {
-            throw new InvalidRequestStateException("Currency pair must be exactly 6 characters");
-        }
-
+    public ApiResponse<ExchangeRate> updateExchangeRate(@PathVariable String currencyPair, @ModelAttribute ExchangeRateUpdateRequest request) {
         String baseCode = currencyPair.substring(0, 3).toUpperCase();
         String targetCode = currencyPair.substring(3).toUpperCase();
 

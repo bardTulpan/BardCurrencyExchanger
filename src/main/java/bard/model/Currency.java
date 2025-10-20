@@ -1,17 +1,10 @@
 package bard.model;
 
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
 public class Currency {
     private Long id;
-    @NotBlank(message = "Code is required")
-    @Size(min = 3, max = 3, message = "Code must be exactly 3 characters")
     private String code;
-    @NotBlank(message = "Full name is required")
     private String fullName;
-    @NotBlank(message = "Sign is required")
     private String sign;
 
     public Currency(String code, String fullName, String sign) {

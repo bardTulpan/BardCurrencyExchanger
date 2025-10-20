@@ -10,8 +10,12 @@ import java.math.RoundingMode;
 @Service
 public class ExchangeService {
 
+    public final ExchangeRateService exchangeRateService; // МБ так лучше, чем все в exchangeRateServec'e писать
+
     @Autowired
-    public ExchangeRateService exchangeRateService; // МБ так лучше, чем все в exchangeRateServec'e писать
+    public ExchangeService(ExchangeRateService exchangeRateService) {
+        this.exchangeRateService = exchangeRateService;
+    }
 
     public ExchangeRate exchange(String fromCurrencyCode, String toCurrencyCode, BigDecimal amount) {
         if (exchangeRateService.isExistsExchangeRate(fromCurrencyCode, toCurrencyCode)) {
