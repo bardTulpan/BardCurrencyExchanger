@@ -13,7 +13,7 @@ public class DatabaseConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.sqlite.JDBC");
-        dataSource.setUrl("jdbc:sqlite:/home/bard/IdeaProjects/currencyExchanger/identifier.sqlite");
+        dataSource.setUrl("jdbc:sqlite:classpath:identifier.sqlite");
         return dataSource;
     }
 

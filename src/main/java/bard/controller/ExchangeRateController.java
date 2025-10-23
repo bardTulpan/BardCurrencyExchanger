@@ -1,5 +1,6 @@
 package bard.controller;
 
+import bard.exception.NotFoundException;
 import bard.model.ApiResponse;
 import bard.model.ExchangeRate;
 import bard.model.ExchangeRateRequest;
@@ -28,45 +29,32 @@ public class ExchangeRateController {
 
     @GetMapping("/exchangeRates")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<List<ExchangeRate>> getExchangeRates() {
-        List<ExchangeRate> exchangeRates = exchangeRateService.getExchangeRates();
-
-        return ApiResponse.success("Exchange rates retrieved successfully", exchangeRates);
+    public List<ExchangeRate> getExchangeRates() {
+        return exchangeRateService.getExchangeRates();
     }
 
-    @GetMapping("/exchangeRate/{currencyPair}")
-    public ApiResponse<ExchangeRate> getExchangeRateByCode(@PathVariable String currencyPair) {
-        ExchangeRate exchangeRate = exchangeRateService.getExchangeRateByCode(currencyPair);
-
-        return ApiResponse.success("Exchange rate retrieved successfully", exchangeRate);
-
+    @GetMapping({"/exchangeRate/{currencyPair}", "/exchangeRate"})
+    public ExchangeRate getExchangeRateByCode(@PathVariable(required = false) String currencyPair) {
+        if (exchangeRateService.isValidCurrencyPair(currencyPair)) {
+            return exchangeRateService.getExchangeRateByCode(currencyPair);
+        }
+        throw new NotFoundException(currencyPair); // тут просто ругается на отсутствие return
     }
 
-    @GetMapping("/exchangeRate") //понял что такое себе, но как переделать. что-то с ControllerAdvice. нада разобраться
-    public ResponseEntity<ApiResponse<?>> getCurrencyWithoutCode() {
-        ApiResponse<?> response = ApiResponse.error(
-                "ExchangeRate currencyPair is required in URL path",
-                "MISSING_EXCHANGEATE_PAIR 400"
-        );
-
-        return ResponseEntity.badRequest().body(response);
-    }
 
     @PostMapping(value = "/exchangeRates", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<Void> insertExchangeRate(@ModelAttribute ExchangeRateRequest exchangeRateRequest) {
-
-        ExchangeRate createdRate = exchangeRateService.createExchangeRate(exchangeRateRequest);
-        return ApiResponse.success("ExchangeRate created", null);
+    public void insertExchangeRate(@ModelAttribute ExchangeRateRequest exchangeRateRequest) {
+        exchangeRateService.createExchangeRate(exchangeRateRequest);
     }
 
     @PatchMapping(value = "/exchangeRate/{currencyPair}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK) //мб это
-    public ApiResponse<ExchangeRate> updateExchangeRate(@PathVariable String currencyPair, @ModelAttribute ExchangeRateUpdateRequest request) {
+    public ExchangeRate updateExchangeRate(@PathVariable String currencyPair, @ModelAttribute ExchangeRateUpdateRequest request) {
         String baseCode = currencyPair.substring(0, 3).toUpperCase();
         String targetCode = currencyPair.substring(3).toUpperCase();
 
-        ExchangeRate updatedRate = exchangeRateService.updateExchangeRate(baseCode, targetCode, request.getRate());
-        return ApiResponse.success("Exchange rate updated successfully", updatedRate);
+        return exchangeRateService.updateExchangeRate(baseCode, targetCode, request.getRate());
+
     }
 }

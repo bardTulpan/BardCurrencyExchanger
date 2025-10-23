@@ -1,6 +1,7 @@
 package bard.service;
 
 import bard.dao.CurrencyRepository;
+import bard.exception.MissingException;
 import bard.model.Currency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,13 @@ public class CurrencyService {
 
     public void createCurrency(Currency currency) {
         currencyRepository.postCurrency(currency);
+    }
+
+    public boolean isValidCurrency(String currencyCode) {
+        if (currencyCode == null || currencyCode.trim().isEmpty()) {
+            throw new MissingException("Currency code can not be empty");
+        }
+        return true;
     }
 
 

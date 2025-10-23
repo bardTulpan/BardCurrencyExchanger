@@ -1,13 +1,16 @@
 package bard.exception;
 
 import bard.model.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -56,5 +59,16 @@ public class GlobalExceptionHandler {
         ApiResponse<?> response = ApiResponse.error(ex.getMessage(), ex.getErrorCode());
 
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(MissingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleCurrencyCodeMissing(MissingException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public String handleNotFoundException(NotFoundException exception) {
+        return exception.getMessage();
     }
 }

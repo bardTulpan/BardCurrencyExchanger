@@ -1,6 +1,7 @@
 package bard.controller;
 
 
+import bard.exception.NotFoundException;
 import bard.model.ApiResponse;
 import bard.model.Currency;
 import bard.model.CurrencyRequest;
@@ -25,37 +26,23 @@ public class CurrencyController {
 
     @GetMapping("/currencies")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<List<Currency>> getCurrencies() {
-        List<Currency> currencies = currencyService.getCurrencies();
-
-        return ApiResponse.success("Currencies retrieved successfully", currencies);
+    public List<Currency> getCurrencies() {
+        return currencyService.getCurrencies();
     }
 
-    @GetMapping("/currency/{code}")
+    @GetMapping({"/currency/{code}", "/currency"})
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<Currency> getCurrency(@PathVariable String code) {
-        Currency currency = currencyService.getCurrencyByCode(code);
-
-        return ApiResponse.success("Currency retrieved successfully", currency);
+    public Currency getCurrency(@PathVariable(required = false) String code) {
+        if (currencyService.isValidCurrency(code)) {
+            return currencyService.getCurrencyByCode(code);
+        }
+        throw new NotFoundException(code); // тут просто ругается на отсутствие return
     }
 
-    @GetMapping("/currency") //понял, как это переделать
-    public ResponseEntity<ApiResponse<?>> getCurrencyWithoutCode() {
-        ApiResponse<?> response = ApiResponse.error(
-                "Currency code is required in URL path",
-                "MISSING_CURRENCY_CODE 400"
-        );
-        return ResponseEntity.badRequest().body(response);
-    }
-
-    //сделать намана
     @PostMapping(value = "/currencies", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<Void> save(@ModelAttribute Currency currency) {
+    public void save(@ModelAttribute Currency currency) {
         currencyService.createCurrency(currency);
-
-        return ApiResponse.success("Currency created", null);
-
     }
 
 

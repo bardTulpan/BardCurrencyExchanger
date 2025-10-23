@@ -2,6 +2,7 @@ package bard.service;
 
 import bard.dao.CurrencyRepository;
 import bard.dao.ExchangeRateRepository;
+import bard.exception.MissingException;
 import bard.exception.exchangeRate.InvalidExchangeRateException;
 import bard.model.Currency;
 import bard.model.ExchangeRate;
@@ -36,6 +37,13 @@ public class ExchangeRateService {
         String targetCode = currencyPair.substring(3).toUpperCase();
 
         return exchangeRateRepository.getExchangeRateByCodes(baseCode, targetCode);
+    }
+
+    public boolean isValidCurrencyPair(String currencyPair) {
+        if (currencyPair == null || currencyPair.trim().isEmpty()) {
+            throw new MissingException("Currency pair can not be empty");
+        }
+        return true;
     }
 
     public ExchangeRate createExchangeRate(ExchangeRateRequest request) { //нужно ли валидирывать данные, которые приходят как-то подругому?
