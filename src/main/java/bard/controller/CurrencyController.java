@@ -2,14 +2,11 @@ package bard.controller;
 
 
 import bard.exception.NotFoundException;
-import bard.model.ApiResponse;
 import bard.model.Currency;
 import bard.model.CurrencyRequest;
 import bard.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,13 +36,12 @@ public class CurrencyController {
         throw new NotFoundException(code); // тут просто ругается на отсутствие return
     }
 
-    @PostMapping(value = "/currencies", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = "/currencies")
     @ResponseStatus(HttpStatus.CREATED)
-    public void save(@ModelAttribute Currency currency) {
+    public void save(@ModelAttribute CurrencyRequest currencyRequest) {
+        Currency currency = currencyService.transformCurrencyRequestToCurrency(currencyRequest);
         currencyService.createCurrency(currency);
     }
-
-
 }
 
 

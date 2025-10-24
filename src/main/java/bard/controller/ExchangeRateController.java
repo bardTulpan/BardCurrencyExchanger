@@ -1,19 +1,14 @@
 package bard.controller;
 
 import bard.exception.NotFoundException;
-import bard.model.ApiResponse;
 import bard.model.ExchangeRate;
 import bard.model.ExchangeRateRequest;
 import bard.model.ExchangeRateUpdateRequest;
 import bard.service.ExchangeRateService;
-import com.sun.jdi.request.InvalidRequestStateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -42,14 +37,15 @@ public class ExchangeRateController {
     }
 
 
-    @PostMapping(value = "/exchangeRates", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = "/exchangeRates")
     @ResponseStatus(HttpStatus.CREATED)
     public void insertExchangeRate(@ModelAttribute ExchangeRateRequest exchangeRateRequest) {
+        exchangeRateService.isValidExchangeRateRequest(exchangeRateRequest);
         exchangeRateService.createExchangeRate(exchangeRateRequest);
     }
 
-    @PatchMapping(value = "/exchangeRate/{currencyPair}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    @ResponseStatus(HttpStatus.OK) //мб это
+    @PatchMapping(value = "/exchangeRate/{currencyPair}")
+    @ResponseStatus(HttpStatus.OK)
     public ExchangeRate updateExchangeRate(@PathVariable String currencyPair, @ModelAttribute ExchangeRateUpdateRequest request) {
         String baseCode = currencyPair.substring(0, 3).toUpperCase();
         String targetCode = currencyPair.substring(3).toUpperCase();

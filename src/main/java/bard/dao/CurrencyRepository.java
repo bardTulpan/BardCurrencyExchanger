@@ -1,8 +1,8 @@
 package bard.dao;
 
-import bard.exception.DatabaseException;
 import bard.exception.AlreadyExistsException;
-import bard.exception.ExchangeNotFoundException;
+import bard.exception.DatabaseException;
+import bard.exception.NotFoundException;
 import bard.model.Currency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -19,11 +19,11 @@ public class CurrencyRepository {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Currency> currencyRowMapper = (rs, rowNum) -> {
         Currency currency = new Currency(
-                rs.getString("Code"),
-                rs.getString("FullName"),
-                rs.getString("Sign")
+                rs.getString("code"),
+                rs.getString("fullName"),
+                rs.getString("sign")
         );
-        currency.setId(rs.getLong("ID"));
+        currency.setId(rs.getLong("id"));
         return currency;
     };
 
@@ -34,7 +34,7 @@ public class CurrencyRepository {
 
     public List<Currency> getCurrencies() {
         try {
-            String sql = "SELECT ID, Code, FullName, Sign from Currencies";
+            String sql = "SELECT id, code, full_name, sign from currencies";
             return jdbcTemplate.query(sql, currencyRowMapper);
         } catch (DataAccessException e) {
             throw new DatabaseException("Failed to fetch currencies: " + e.getMessage());
@@ -43,10 +43,10 @@ public class CurrencyRepository {
 
     public Currency getCurrencyByCode(String code) {
         try {
-            String sql = "SELECT ID, Code, FullName, Sign FROM Currencies WHERE Code = ?";
+            String sql = "SELECT id, code, full_name, sign FROM currencies WHERE code = ?";
             return jdbcTemplate.queryForObject(sql, currencyRowMapper, code);
         } catch (EmptyResultDataAccessException e) {
-            throw new ExchangeNotFoundException(code);
+            throw new NotFoundException(code);
         } catch (DataAccessException e) {
             throw new DatabaseException("Failed to fetch currency: " + e.getMessage());
         }
@@ -54,10 +54,10 @@ public class CurrencyRepository {
 
     public Currency getCurrencyById(long id) {
         try {
-            String sql = "SELECT ID, Code, FullName, Sign FROM Crrencies WHERE ID = ?";
+            String sql = "SELECT id, code, full_name, sign FROM currencies WHERE id = ?";
             return jdbcTemplate.queryForObject(sql, currencyRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new ExchangeNotFoundException(Long.toString(id)); //мб это плохая идея
+            throw new NotFoundException(Long.toString(id)); //мб это плохая идея
         } catch (DataAccessException e) {
             throw new DatabaseException("Failed to fetch currency: " + e.getMessage());
         }
@@ -65,15 +65,14 @@ public class CurrencyRepository {
 
     public void postCurrency(Currency currency) {
         try {
-            String checkSql = "SELECT COUNT(*) FROM Currencies WHERE Code = ?";
-            //заменить на String checkSql = "SELECT 1 FROM Currencies WHERE Code = ? LIMIT 1";
+            String checkSql = "SELECT EXISTS(SELECT 1 FROM currencies WHERE code = ?)";
             Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, currency.getCode());
 
             if (count != null && count > 0) {
                 throw new AlreadyExistsException(currency.getCode());
             }
 
-            String insertSql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)";
+            String insertSql = "INSERT INTO currencies (code, full_mame, sign) VALUES (?, ?, ?)";
             jdbcTemplate.update(insertSql, currency.getCode(), currency.getFullName(), currency.getSign());
 
         } catch (DataAccessException e) {

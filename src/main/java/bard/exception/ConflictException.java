@@ -1,6 +1,5 @@
 package bard.exception;
 
-import bard.exception.ExchangeException;
 import org.springframework.http.HttpStatus;
 
 public class ConflictException extends ExchangeException {

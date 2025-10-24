@@ -1,10 +1,10 @@
 package bard.model;
 
-public class  CurrencyResponce {
+public class CurrencyResponce {
     private Long id;
-    private String code;
-    private String fullName;
-    private String sign;
+    private final String code;
+    private final String fullName;
+    private final String sign;
 
     public CurrencyResponce(String code, String fullName, String sign) {
         this.code = code;

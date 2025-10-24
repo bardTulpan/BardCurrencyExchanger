@@ -2,6 +2,7 @@ package bard.service;
 
 import bard.dao.CurrencyRepository;
 import bard.dao.ExchangeRateRepository;
+import bard.exception.InvalidRequestException;
 import bard.exception.MissingException;
 import bard.exception.exchangeRate.InvalidExchangeRateException;
 import bard.model.Currency;
@@ -23,6 +24,19 @@ public class ExchangeRateService {
         this.exchangeRateRepository = exchangeRateRepository;
         this.currencyRepository = currencyRepository;
     }
+
+    public void isValidExchangeRateRequest(ExchangeRateRequest exchangeRateRequest) {
+        if (exchangeRateRequest.getBaseCurrencyCode() == null || exchangeRateRequest.getBaseCurrencyCode().trim().isEmpty()) {
+            throw new InvalidRequestException("Missing required field: baseCurrencyCode");
+        }
+        if (exchangeRateRequest.getTargetCurrencyCode() == null || exchangeRateRequest.getTargetCurrencyCode().trim().isEmpty()) {
+            throw new InvalidRequestException("Missing required field: targetCurrencyCode");
+        }
+        if (exchangeRateRequest.getRate() == null) {
+            throw new InvalidRequestException("Missing required field: rate");
+        }
+    }
+
 
     public List<ExchangeRate> getExchangeRates() {
         return exchangeRateRepository.getExchangeRates();
@@ -46,7 +60,7 @@ public class ExchangeRateService {
         return true;
     }
 
-    public ExchangeRate createExchangeRate(ExchangeRateRequest request) { //нужно ли валидирывать данные, которые приходят как-то подругому?
+    public ExchangeRate createExchangeRate(ExchangeRateRequest request) {
 
         Currency baseCurrency = currencyRepository.getCurrencyByCode(request.getBaseCurrencyCode());
         Currency targetCurrency = currencyRepository.getCurrencyByCode(request.getTargetCurrencyCode());

@@ -1,8 +1,12 @@
 package bard.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class CurrencyRequest {
-    private Long id;
-    private String name; // измените fullName на name
+    private String name;
     private String code;
     private String sign;
 
@@ -15,15 +19,4 @@ public class CurrencyRequest {
     public CurrencyRequest() {
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; } // измените getFullName на getName
-    public void setName(String name) { this.name = name; } // измените setFullName на setName
-
-    public String getCode() { return code; }
-    public void setCode(String code) { this.code = code; }
-
-    public String getSign() { return sign; }
-    public void setSign(String sign) { this.sign = sign; }
 }

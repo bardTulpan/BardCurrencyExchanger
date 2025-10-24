@@ -1,9 +1,6 @@
 package bard.service;
 
-import bard.dao.ExchangeRateRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -20,41 +17,43 @@ public class DatabaseInitializer {
     public DatabaseInitializer(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
     @PostConstruct
     public void initializeDatabase() {
         try {
             log.info("Начинаем инициализацию базы данных...");
 
             String createCurrenciesTable = """
-                    CREATE TABLE IF NOT EXISTS Currencies (
-                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        Code VARCHAR(3) NOT NULL UNIQUE,
-                        FullName VARCHAR(100) NOT NULL,
-                        Sign VARCHAR(5) NOT NULL
-                    )
+                        CREATE TABLE IF NOT EXISTS currencies (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            code VARCHAR(3) NOT NULL UNIQUE,
+                            full_name VARCHAR(100) NOT NULL,
+                            sign VARCHAR(5) NOT NULL
+                        )
                     """;
+
             String createExchangeRatesTable = """
-                    CREATE TABLE IF NOT EXISTS ExchangeRates (
-                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        BaseCurrencyId INTEGER NOT NULL,
-                        TargetCurrencyId INTEGER NOT NULL,
-                        Rate DECIMAL(12,6) NOT NULL,
-                        FOREIGN KEY (BaseCurrencyId) REFERENCES Currencies(ID),
-                        FOREIGN KEY (TargetCurrencyId) REFERENCES Currencies(ID),
-                        UNIQUE (BaseCurrencyId, TargetCurrencyId)
-                    )
+                        CREATE TABLE IF NOT EXISTS exchange_rates (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            base_currency_id INTEGER NOT NULL,
+                            target_currency_id INTEGER NOT NULL,
+                            rate DECIMAL(12,6) NOT NULL,
+                            FOREIGN KEY (base_currency_id) REFERENCES currencies(id),
+                            FOREIGN KEY (target_currency_id) REFERENCES currencies(id),
+                            UNIQUE (base_currency_id, target_currency_id)
+                        )
                     """;
 
             jdbcTemplate.execute(createCurrenciesTable);
             jdbcTemplate.execute(createExchangeRatesTable);
             log.info("Таблицы созданы/проверены");
 
-            String checkDataSQL = "SELECT COUNT(ID) FROM Currencies";
+            String checkDataSQL = "SELECT COUNT(id) FROM currencies";
             Integer count = jdbcTemplate.queryForObject(checkDataSQL, Integer.class);
 
             if (count == 0) {
                 String insertCurrenciesSQL = """
-                        INSERT INTO Currencies (Code, FullName, Sign) VALUES
+                        INSERT INTO currencies (code, full_name, sign) VALUES
                         ('USD', 'US Dollar', '$'),
                         ('EUR', 'Euro', '€'),
                         ('GBP', 'British Pound', '£'),
@@ -64,7 +63,7 @@ public class DatabaseInitializer {
                 log.info("Валюты добавлены");
 
                 String insertExchangeRatesSQL = """
-                        INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES
+                        INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES
                         (1, 2, 0.85),   -- USD to EUR
                         (1, 3, 0.73),   -- USD to GBP
                         (1, 4, 75.50),  -- USD to RUB
