@@ -20,7 +20,7 @@ public class CurrencyRepository {
     private final RowMapper<Currency> currencyRowMapper = (rs, rowNum) -> {
         Currency currency = new Currency(
                 rs.getString("code"),
-                rs.getString("fullName"),
+                rs.getString("full_name"),
                 rs.getString("sign")
         );
         currency.setId(rs.getLong("id"));
@@ -37,6 +37,7 @@ public class CurrencyRepository {
             String sql = "SELECT id, code, full_name, sign from currencies";
             return jdbcTemplate.query(sql, currencyRowMapper);
         } catch (DataAccessException e) {
+            e.printStackTrace();
             throw new DatabaseException("Failed to fetch currencies: " + e.getMessage());
         }
     }
