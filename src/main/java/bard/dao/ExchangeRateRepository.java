@@ -380,6 +380,7 @@ public class ExchangeRateRepository {
                 throw new ExchangeRateNotFoundException(baseCode, targetCode);
             }
 
+
             return getExchangeRateByCodes(baseCode, targetCode);
 
         } catch (DataAccessException e) {
